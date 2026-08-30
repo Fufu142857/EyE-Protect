@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:;"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EyE-Protect</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <div class="brand-mark" aria-hidden="true"><span></span></div>
+        <div>
+          <p class="brand-name">EyE-Protect</p>
+        </div>
+        <button class="icon-button settings-toggle standard-only" id="settings-toggle" aria-label="Open settings" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 8.5A3.5 3.5 0 1 0 12 15.5 3.5 3.5 0 0 0 12 8.5ZM19.4 13.5a7.8 7.8 0 0 0 0-3l2-1.55-2-3.46-2.48 1a8.1 8.1 0 0 0-2.6-1.5L14 2.35h-4L9.68 5a8.1 8.1 0 0 0-2.6 1.5l-2.48-1-2 3.46 2 1.55a7.8 7.8 0 0 0 0 3l-2 1.55 2 3.46 2.48-1a8.1 8.1 0 0 0 2.6 1.5l.32 2.64h4l.32-2.64a8.1 8.1 0 0 0 2.6-1.5l2.48 1 2-3.46-2-1.55Z" />
+          </svg>
+        </button>
+        <button class="icon-button reminder-only" id="hide-reminder" aria-label="Hide reminder">×</button>
+      </header>
+
+      <section class="break-strip" aria-live="polite">
+        <div class="break-strip-time">
+          <strong id="break-strip-timer">03:00</strong>
+        </div>
+        <div class="break-strip-tip">
+          <p id="break-tip">Look at something at least 6 metres away.</p>
+        </div>
+        <button class="strip-action" id="finish-break-strip" data-i18n="finishEarly">End break early</button>
+      </section>
+
+      <section class="status-card" aria-live="polite">
+        <h1 id="status-title">Ready when you are</h1>
+        <p class="timer" id="timer" hidden>30:00</p>
+        <div class="progress-track" id="progress-track" hidden>
+          <span id="progress-bar"></span>
+        </div>
+        <div class="actions" id="actions"></div>
+      </section>
+
+      <section class="settings-card standard-only expanded-only">
+        <div class="section-heading">
+          <h2 data-i18n="settings">Settings</h2>
+        </div>
+
+        <form id="settings-form">
+          <div class="settings-grid">
+            <label>
+              <span data-i18n="workDuration">Work duration</span>
+              <span class="number-field"><input name="workMinutes" type="number" min="1" max="180" /><em>min</em></span>
+            </label>
+            <label>
+              <span data-i18n="shortBreak">Short break</span>
+              <span class="number-field"><input name="shortBreakMinutes" type="number" min="1" max="30" /><em>min</em></span>
+            </label>
+            <label>
+              <span data-i18n="longBreak">Long break</span>
+              <span class="number-field"><input name="longBreakMinutes" type="number" min="3" max="60" /><em>min</em></span>
+            </label>
+            <label>
+              <span data-i18n="longBreakEvery">Long break every</span>
+              <span class="number-field"><input name="longBreakEvery" type="number" min="1" max="12" /><em data-i18n="cycles">cycles</em></span>
+            </label>
+            <label>
+              <span data-i18n="snoozeFor">Snooze for</span>
+              <span class="number-field"><input name="snoozeMinutes" type="number" min="1" max="30" /><em>min</em></span>
+            </label>
+            <label>
+              <span data-i18n="language">Language</span>
+              <select name="language">
+                <option value="en">English</option>
+                <option value="zh-CN">简体中文</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="toggle-list">
+            <label class="toggle-row">
+              <strong data-i18n="launchAtLogin">Launch at login</strong>
+              <input name="launchAtLogin" type="checkbox" />
+            </label>
+            <label class="toggle-row">
+              <strong data-i18n="idleAsBreak">Treat inactivity as a break</strong>
+              <input name="treatIdleAsBreak" type="checkbox" />
+            </label>
+            <label class="idle-minutes-row" id="idle-minutes-row">
+              <span data-i18n="idleThreshold">Inactivity threshold</span>
+              <span class="number-field compact"><input name="idleBreakMinutes" type="number" min="1" max="30" /><em>min</em></span>
+            </label>
+          </div>
+
+          <div class="form-footer">
+            <p id="save-message" role="status"></p>
+            <button class="button secondary" type="submit" data-i18n="saveSettings">Save settings</button>
+          </div>
+        </form>
+      </section>
+    </main>
+    <script src="renderer.js"></script>
+  </body>
+</html>
