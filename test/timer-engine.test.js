@@ -19,7 +19,12 @@ test("uses privacy-friendly, gentle defaults", () => {
   assert.equal(settings.shortBreakMinutes, 3);
   assert.equal(settings.longBreakMinutes, 15);
   assert.equal(settings.language, "en");
+  assert.equal(settings.showOnFullscreen, true);
   assert.equal(settings.treatIdleAsBreak, false);
+});
+
+test("preserves an explicit fullscreen reminder preference", () => {
+  assert.equal(normalizeSettings({ showOnFullscreen: false }).showOnFullscreen, false);
 });
 
 test("moves from a work session to a due break", () => {

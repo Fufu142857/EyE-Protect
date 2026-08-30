@@ -193,6 +193,7 @@ select { min-width: 99px; padding: 8px 9px; border: 0; border-radius: 10px; colo
 .toggle-list { margin-top: 17px; border-top: 1px solid rgba(35, 52, 44, 0.09); }
 .toggle-row, .idle-minutes-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 12px 0; border-bottom: 1px solid rgba(35, 52, 44, 0.09); }
 .toggle-row input { width: 18px; height: 18px; accent-color: #315e4e; }
+.toggle-row[hidden] { display: none; }
 .idle-minutes-row[hidden] { display: none; }
 
 .form-footer { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 15px; }

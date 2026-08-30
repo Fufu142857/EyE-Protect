@@ -16,7 +16,7 @@ const { SettingsStore } = require("./settings-store");
 const APP_NAME = "EyE-Protect";
 const TICK_MS = 1_000;
 const MAIN_COMPACT_SIZE = Object.freeze({ width: 450, height: 255 });
-const MAIN_EXPANDED_SIZE = Object.freeze({ width: 700, height: 620 });
+const MAIN_EXPANDED_SIZE = Object.freeze({ width: 700, height: 650 });
 const REMINDER_SIZES = Object.freeze({
   break_due: { width: 380, height: 220 },
   breaking: { width: 520, height: 96 },
@@ -68,6 +68,14 @@ function createMainWindow() {
   });
 }
 
+function applyFullscreenReminderSetting(enabled) {
+  if (process.platform !== "darwin" || !reminderWindow || reminderWindow.isDestroyed()) return;
+  const visible = Boolean(enabled);
+  reminderWindow.setVisibleOnAllWorkspaces(visible, {
+    visibleOnFullScreen: visible,
+  });
+}
+
 function createReminderWindow() {
   if (reminderWindow && !reminderWindow.isDestroyed()) return reminderWindow;
 
@@ -95,6 +103,7 @@ function createReminderWindow() {
   reminderWindow.loadFile(path.join(__dirname, "renderer", "index.html"), {
     query: { mode: "reminder" },
   });
+  applyFullscreenReminderSetting(engine.settings.showOnFullscreen);
   reminderWindow.on("closed", () => {
     reminderWindow = null;
   });
@@ -336,6 +345,17 @@ async function runSmokeTest() {
     reminderResult.hasBreakStrip &&
     !createTrayIcon().isEmpty();
 
+  const fullscreenVisibilityConfigured =
+    process.platform !== "darwin" ||
+    reminder.isVisibleOnAllWorkspaces() === engine.settings.showOnFullscreen;
+  mainWindow.show();
+  mainWindow.focus();
+  reminder.showInactive();
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  const reminderStayedInactive = !reminder.isFocused();
+  reminder.hide();
+  passed = passed && fullscreenVisibilityConfigured && reminderStayedInactive;
+
   let captures;
   if (process.argv.includes("--capture-smoke")) {
     const captureDirectory = path.join(app.getPath("temp"), "eye-protect-smoke");
@@ -379,7 +399,15 @@ async function runSmokeTest() {
   const mainHidesOnStart = !mainWindow.isVisible();
   passed = passed && mainHidesOnStart;
 
-  console.log(JSON.stringify({ passed, mainHidesOnStart, main: mainResult, reminder: reminderResult, captures }));
+  console.log(JSON.stringify({
+    passed,
+    mainHidesOnStart,
+    fullscreenVisibilityConfigured,
+    reminderStayedInactive,
+    main: mainResult,
+    reminder: reminderResult,
+    captures,
+  }));
   if (!passed) app.exit(1);
   else app.quit();
 }
@@ -391,6 +419,7 @@ function registerIpc() {
     const saved = settingsStore.update(settings);
     engine.updateSettings(saved);
     applyLoginSetting(saved.launchAtLogin);
+    applyFullscreenReminderSetting(saved.showOnFullscreen);
     return saved;
   });
   ipcMain.handle("window:show-main", () => showMainWindow());

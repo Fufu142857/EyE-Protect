@@ -2,7 +2,8 @@ const translations = {
   en: {
     settings: "Settings", workDuration: "Work duration", shortBreak: "Short break", longBreak: "Long break",
     longBreakEvery: "Long break every", cycles: "cycles", snoozeFor: "Snooze for", language: "Language",
-    launchAtLogin: "Launch at login", idleAsBreak: "Treat inactivity as a break", idleThreshold: "Inactivity threshold",
+    launchAtLogin: "Launch at login", showOnFullscreen: "Show reminders in fullscreen",
+    idleAsBreak: "Treat inactivity as a break", idleThreshold: "Inactivity threshold",
     saveSettings: "Save settings", readyTitle: "Ready", startSession: "Start", workingTitle: "Working", pause: "Pause",
     pausedTitle: "Paused", resume: "Resume", dueTitle: "Break", startBreak: "Start", snooze: "+{snooze} min",
     skip: "Skip", snoozedTitle: "Snoozed", breakTitle: "Break", longBreakTitle: "Break", finishEarly: "End",
@@ -11,7 +12,8 @@ const translations = {
   "zh-CN": {
     settings: "设置", workDuration: "工作时长", shortBreak: "短休息", longBreak: "长休息",
     longBreakEvery: "长休息间隔", cycles: "个周期", snoozeFor: "延后提醒", language: "语言",
-    launchAtLogin: "登录时启动", idleAsBreak: "将无操作视为休息", idleThreshold: "无操作阈值",
+    launchAtLogin: "登录时启动", showOnFullscreen: "全屏时显示提醒",
+    idleAsBreak: "将无操作视为休息", idleThreshold: "无操作阈值",
     saveSettings: "保存设置", readyTitle: "准备", startSession: "开始", workingTitle: "工作中", pause: "暂停",
     pausedTitle: "已暂停", resume: "继续", dueTitle: "休息", startBreak: "开始", snooze: "+{snooze} 分钟",
     skip: "跳过", snoozedTitle: "已延后", breakTitle: "休息", longBreakTitle: "休息", finishEarly: "结束",
@@ -48,6 +50,7 @@ const actions = document.querySelector("#actions");
 const settingsForm = document.querySelector("#settings-form");
 const saveMessage = document.querySelector("#save-message");
 const idleMinutesRow = document.querySelector("#idle-minutes-row");
+const fullscreenRemindersRow = document.querySelector("#fullscreen-reminders-row");
 const settingsToggle = document.querySelector("#settings-toggle");
 const breakStripTimer = document.querySelector("#break-strip-timer");
 const breakTip = document.querySelector("#break-tip");
@@ -56,6 +59,10 @@ let currentLanguage = "en";
 let settingsOpen = false;
 let breakTipIndex = 0;
 let breakTipInterval;
+
+if (fullscreenRemindersRow) {
+  fullscreenRemindersRow.hidden = window.eyeProtect.platform !== "darwin";
+}
 
 function t(key, values = {}) {
   let value = translations[currentLanguage]?.[key] ?? translations.en[key] ?? key;
@@ -217,6 +224,7 @@ settingsForm?.addEventListener("submit", async (event) => {
     settings[key] = Number(settings[key]);
   }
   settings.launchAtLogin = settingsForm.elements.launchAtLogin.checked;
+  settings.showOnFullscreen = settingsForm.elements.showOnFullscreen.checked;
   settings.treatIdleAsBreak = settingsForm.elements.treatIdleAsBreak.checked;
   settings.soundEnabled = false;
   const saved = await window.eyeProtect.updateSettings(settings);

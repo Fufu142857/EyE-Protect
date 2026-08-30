@@ -9,6 +9,7 @@ const DEFAULT_SETTINGS = Object.freeze({
   idleBreakMinutes: 3,
   language: "en",
   launchAtLogin: false,
+  showOnFullscreen: true,
   soundEnabled: false,
   treatIdleAsBreak: false,
 });
@@ -37,6 +38,9 @@ function normalizeSettings(input = {}) {
 
   normalized.language = input.language === "zh-CN" ? "zh-CN" : "en";
   normalized.launchAtLogin = Boolean(input.launchAtLogin);
+  normalized.showOnFullscreen = input.showOnFullscreen === undefined
+    ? DEFAULT_SETTINGS.showOnFullscreen
+    : Boolean(input.showOnFullscreen);
   normalized.soundEnabled = Boolean(input.soundEnabled);
   normalized.treatIdleAsBreak = Boolean(input.treatIdleAsBreak);
 
