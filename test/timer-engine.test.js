@@ -85,6 +85,42 @@ test("offers a long break every configured number of sessions", () => {
   assert.equal(engine.snapshot().remainingSeconds, 180);
 });
 
+test("returns to a short break on the cycle after a completed long break", () => {
+  const engine = new TimerEngine(fastSettings());
+
+  for (let cycle = 1; cycle <= 4; cycle += 1) {
+    engine.startWork();
+    engine.tick(60);
+    assert.equal(engine.snapshot().pendingBreakType, cycle === 4 ? "long" : "short");
+    engine.startBreak();
+    engine.tick(cycle === 4 ? 180 : 60);
+  }
+
+  assert.equal(engine.snapshot().cyclesSinceLongBreak, 0);
+  engine.startWork();
+  engine.tick(60);
+  assert.equal(engine.snapshot().pendingBreakType, "short");
+  engine.startBreak();
+  assert.equal(engine.snapshot().remainingSeconds, 60);
+});
+
+test("a fresh app engine never inherits cycle progress", () => {
+  const engine = new TimerEngine({
+    ...fastSettings(),
+    completedWorkSessions: 3,
+    cyclesSinceLongBreak: 3,
+    longBreakOwed: true,
+  });
+
+  assert.equal(engine.snapshot().completedWorkSessions, 0);
+  assert.equal(engine.snapshot().cyclesSinceLongBreak, 0);
+  assert.equal(engine.snapshot().longBreakOwed, false);
+
+  engine.startWork();
+  engine.tick(60);
+  assert.equal(engine.snapshot().pendingBreakType, "short");
+});
+
 test("pauses and resumes without consuming time", () => {
   const engine = new TimerEngine(fastSettings());
   engine.startWork();

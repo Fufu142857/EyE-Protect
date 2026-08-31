@@ -55,6 +55,9 @@ class TimerEngine extends EventEmitter {
     this.remainingSeconds = 0;
     this.phaseTotalSeconds = 0;
     this.completedWorkSessions = 0;
+    // Runtime-only progress within the current long-break cycle. A new engine
+    // (and therefore every fresh app launch) always starts from cycle zero.
+    this.cyclesSinceLongBreak = 0;
     this.completedBreaks = 0;
     this.skippedBreaks = 0;
     this.longBreakOwed = false;
@@ -69,6 +72,7 @@ class TimerEngine extends EventEmitter {
       remainingSeconds: this.remainingSeconds,
       phaseTotalSeconds: this.phaseTotalSeconds,
       completedWorkSessions: this.completedWorkSessions,
+      cyclesSinceLongBreak: this.cyclesSinceLongBreak,
       completedBreaks: this.completedBreaks,
       skippedBreaks: this.skippedBreaks,
       pendingBreakType: this.pendingBreakType,
@@ -162,7 +166,10 @@ class TimerEngine extends EventEmitter {
     const completedLongBreak =
       followedActiveUse && this.longBreakOwed && duration >= this.settings.longBreakMinutes * 60;
 
-    if (completedLongBreak) this.longBreakOwed = false;
+    if (completedLongBreak) {
+      this.longBreakOwed = false;
+      this.cyclesSinceLongBreak = 0;
+    }
     if (followedActiveUse && duration >= this.settings.shortBreakMinutes * 60) {
       this.completedBreaks += 1;
     }
@@ -192,7 +199,8 @@ class TimerEngine extends EventEmitter {
 
     if (this.status === "working") {
       this.completedWorkSessions += 1;
-      if (this.completedWorkSessions % this.settings.longBreakEvery === 0) {
+      this.cyclesSinceLongBreak += 1;
+      if (this.cyclesSinceLongBreak >= this.settings.longBreakEvery) {
         this.longBreakOwed = true;
       }
       this.pendingBreakType = this.longBreakOwed ? "long" : "short";
@@ -203,7 +211,11 @@ class TimerEngine extends EventEmitter {
       this.phaseTotalSeconds = 0;
     } else if (this.status === "breaking") {
       this.completedBreaks += 1;
-      if (this.pendingBreakType === "long") this.longBreakOwed = false;
+      if (this.pendingBreakType === "long") {
+        this.longBreakOwed = false;
+        this.cyclesSinceLongBreak = 0;
+        this.pendingBreakType = "short";
+      }
       this.status = "break_complete";
       this.phaseTotalSeconds = 0;
     }
